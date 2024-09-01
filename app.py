@@ -174,11 +174,11 @@ def validate_login(email, password):
 def main():
     if st.session_state.get("logged_in", False):
         
-     tabs = ["Dashboard", "First Aid Chatbot"]
+     tabs = ["Hospital Information", "First Aid Chatbot"]
      tab = st.tabs(tabs)
      with tab[0]: 
         
-        st.title("Welcome to the Dashboard!")
+        st.title("Welcome to the Hospitrex by Akira")
 
         # Create two columns
         col1, col2 = st.columns(2)
