@@ -42,15 +42,11 @@ def create_map_with_route(start_lat, start_lon, end_lat, end_lon, api_key):
     try:
         route_coordinates = route['features'][0]['geometry']['coordinates']
         
-        # Convert the coordinates to a polyline string if needed
-        if isinstance(route_coordinates, list) and isinstance(route_coordinates[0], list):
-            # For a list of lists (not encoded polyline)
-            decoded_coordinates = route_coordinates
-        else:
-            # Decode polyline string if needed
-            decoded_coordinates = polyline.decode(route_coordinates)
+        # Decode the polyline
+        decoded_coordinates = route_coordinates
         
-        folium.PolyLine(locations=decoded_coordinates, color='blue').add_to(m)
+        # Add the route to the map
+        folium.PolyLine(locations=decoded_coordinates, color='blue', weight=5).add_to(m)
     except Exception as e:
         st.error(f"Error decoding polyline: {str(e)}")
     
