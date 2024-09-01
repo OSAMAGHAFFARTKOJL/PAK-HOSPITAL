@@ -1,7 +1,6 @@
 import streamlit as st
-import time
-from geopy.geocoders import Nominatim
 import requests
+from geopy.geocoders import Nominatim
 
 # Title for the app
 st.title("User's Geolocation")
@@ -12,7 +11,6 @@ def get_location_from_coordinates(lat, lon):
     try:
         location_data = geolocator.reverse(f"{lat}, {lon}", language="en")
         if location_data:
-            st.write("Raw location data:", location_data.raw)
             return location_data.raw['display_name']
         else:
             return "Location not found"
@@ -26,7 +24,6 @@ def get_location_from_osm(lat, lon):
     try:
         response = requests.get(url)
         data = response.json()
-        st.write("OSM API response:", data)
         if 'display_name' in data:
             return data['display_name']
         else:
@@ -35,10 +32,7 @@ def get_location_from_osm(lat, lon):
         st.error(f"OSM API Error: {str(e)}")
         return f"Error: {str(e)}"
 
-# Step 1: Ask the user to enable location services
-st.write("Please enable location services in your browser.")
-
-# JavaScript to get the user's location and send it to Streamlit
+# JavaScript to get the user's location and update URL
 get_location_script = """
 <script>
 function getLocation() {
@@ -54,11 +48,11 @@ function showPosition(position) {
     const lon = position.coords.longitude;
     document.getElementById("location").innerHTML = `Latitude: ${lat}, Longitude: ${lon}`;
     
-    // Update the hidden input field
-    document.getElementById("lat").value = lat;
-    document.getElementById("lon").value = lon;
-    document.getElementById("lat").dispatchEvent(new Event('input', { bubbles: true }));
-    document.getElementById("lon").dispatchEvent(new Event('input', { bubbles: true }));
+    // Update the URL with latitude and longitude
+    const url = new URL(window.location.href);
+    url.searchParams.set('lat', lat);
+    url.searchParams.set('lon', lon);
+    window.history.replaceState({}, '', url);
 }
 
 function showError(error) {
@@ -80,18 +74,16 @@ function showError(error) {
 </script>
 <button onclick="getLocation()">Get Location</button>
 <p id="location"></p>
-<input type="hidden" id="lat" />
-<input type="hidden" id="lon" />
 """
 
 # Display the HTML/JS code in the Streamlit app
 st.components.v1.html(get_location_script, height=200)
 
-# Retrieve the coordinates from the hidden input fields
-lat = st.text_input("Latitude", key="lat")
-lon = st.text_input("Longitude", key="lon")
+# Retrieve latitude and longitude from query parameters
+query_params = st.experimental_get_query_params()
+lat = query_params.get("lat", [None])[0]
+lon = query_params.get("lon", [None])[0]
 
-# Process the coordinates if available
 if lat and lon:
     lat = float(lat)
     lon = float(lon)
@@ -104,6 +96,3 @@ if lat and lon:
     st.write(f"**Address (OSM API):** {address_osm}")
 else:
     st.write("Waiting for location...")
-
-# Add a delay before making the next request
-time.sleep(1)
