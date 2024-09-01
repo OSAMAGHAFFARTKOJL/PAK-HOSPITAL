@@ -20,25 +20,12 @@ get_location_script = """
     function showPosition(position) {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
-        document.getElementById("location_input").value = lat + "," + lon;
-        document.getElementById("location_input").dispatchEvent(new Event("input"));
+        document.getElementById("location").innerHTML = `Latitude: ${lat}, Longitude: ${lon}`;
     }
     </script>
     <button onclick="getLocation()">Get Location</button>
-    <input type="hidden" id="location_input" />
+    <p id="location"></p>
 """
 
 # Display the HTML/JS code in the Streamlit app
-st.components.v1.html(get_location_script)
-
-# Step 3: Retrieve the location from the hidden input field
-location = st.text_input("Location", key="location_input")
-
-# Step 4: Display the location if it was retrieved
-if location:
-    lat, lon = location.split(",")
-    st.write(f"**Latitude:** {lat.strip()}")
-    st.write(f"**Longitude:** {lon.strip()}")
-else:
-    st.write("Waiting for location...")
-
+st.components.v1.html(get_location_script, height=200)
