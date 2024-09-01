@@ -53,7 +53,7 @@ st.components.v1.html(get_location_script, height=200)
 # Retrieve the location from the hidden input field
 if 'lat_lon' in st.session_state:
     lat, lon = st.session_state.lat_lon.split(",")
-    st.write(f"**Latitude:** {lat.strip()}")
+    st.write(f"**Latitudessss:** {lat.strip()}")
     st.write(f"**Longitude:** {lon.strip()}")
 else:
     st.write("Waiting for location...")
