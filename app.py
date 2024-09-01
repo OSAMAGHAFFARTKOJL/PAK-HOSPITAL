@@ -1,35 +1,44 @@
 import streamlit as st
 
 # Title for the app
-st.title("Get User's Geolocation")
+st.title("User's Geolocation")
 
-# HTML and JavaScript code to get user's geolocation
-location_html = """
+# Step 1: Ask the user to enable location services
+st.write("Please enable location services in your browser.")
+
+# Step 2: HTML and JavaScript to get the user's location after they enable it
+get_location_script = """
     <script>
     function getLocation() {
-        navigator.geolocation.getCurrentPosition(showPosition);
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
     }
+    
     function showPosition(position) {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         document.getElementById("location_input").value = lat + "," + lon;
         document.getElementById("location_input").dispatchEvent(new Event("input"));
     }
-    getLocation();
     </script>
+    <button onclick="getLocation()">Get Location</button>
     <input type="hidden" id="location_input" />
 """
 
 # Display the HTML/JS code in the Streamlit app
-st.components.v1.html(location_html)
+st.components.v1.html(get_location_script)
 
-# Retrieve the location from the hidden input field
+# Step 3: Retrieve the location from the hidden input field
 location = st.text_input("Location", key="location_input")
 
-# Display the location if it was retrieved
+# Step 4: Display the location if it was retrieved
 if location:
     lat, lon = location.split(",")
     st.write(f"**Latitude:** {lat.strip()}")
     st.write(f"**Longitude:** {lon.strip()}")
 else:
     st.write("Waiting for location...")
+
