@@ -278,7 +278,7 @@ def main():
                 st.write(f"**SOURCE:** {search_results['SOURCE']}")
 
             start_location_name = location
-            end_location_name = hospital_name + " in " + city
+            end_location_name = hospital_name
 
             if start_location_name and end_location_name:
                 start_coordinates = get_location_coordinates(start_location_name)
