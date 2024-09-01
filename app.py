@@ -1,64 +1,44 @@
 import streamlit as st
+import folium
+from streamlit_folium import folium_static
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut, GeocoderUnavailable
 
-st.set_page_config(page_title="GPS Location App")
+def get_location_coordinates(location_name):
+    geolocator = Nominatim(user_agent="my_streamlit_map_application")
+    try:
+        location = geolocator.geocode(location_name)
+        if location:
+            return location.latitude, location.longitude
+        else:
+            return None
+    except (GeocoderTimedOut, GeocoderUnavailable):
+        st.error("Error: The geocoding service is unavailable. Please try again later.")
+        return None
 
-st.title("GPS Location App")
+def create_map(latitude, longitude, zoom=12):
+    m = folium.Map(location=[latitude, longitude], zoom_start=zoom)
+    folium.Marker([latitude, longitude]).add_to(m)
+    return m
 
-st.write("Click the button below to get your GPS location.")
-
-# JavaScript to get user's location
-location_button = st.button("Get My Location")
-
-# HTML and JavaScript for getting location
-location_html = """
-<div id="location-data"></div>
-
-<script>
-function getLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition, showError);
-    } else {
-        document.getElementById("location-data").innerHTML = "Geolocation is not supported by this browser.";
-    }
-}
-
-function showPosition(position) {
-    var lat = position.coords.latitude;
-    var lon = position.coords.longitude;
-    document.getElementById("location-data").innerHTML = "Latitude: " + lat + "<br>Longitude: " + lon;
+def main():
+    st.title("Location Map Viewer")
     
-    // Send data to Streamlit
-    fetch(`http://localhost:8501/?lat=${lat}&lon=${lon}`)
-}
+    location_name = st.text_input("Enter a location (e.g., 'New York City' or 'Eiffel Tower, Paris'): ")
+    
+    if st.button("Show Map"):
+        if location_name:
+            coordinates = get_location_coordinates(location_name)
+            if coordinates:
+                latitude, longitude = coordinates
+                st.success(f"Coordinates: {latitude}, {longitude}")
+                
+                map = create_map(latitude, longitude)
+                folium_static(map)
+            else:
+                st.warning("Location not found. Please try a different location.")
+        else:
+            st.warning("Please enter a location.")
 
-function showError(error) {
-    switch(error.code) {
-        case error.PERMISSION_DENIED:
-            document.getElementById("location-data").innerHTML = "User denied the request for Geolocation.";
-            break;
-        case error.POSITION_UNAVAILABLE:
-            document.getElementById("location-data").innerHTML = "Location information is unavailable.";
-            break;
-        case error.TIMEOUT:
-            document.getElementById("location-data").innerHTML = "The request to get user location timed out.";
-            break;
-        case error.UNKNOWN_ERROR:
-            document.getElementById("location-data").innerHTML = "An unknown error occurred.";
-            break;
-    }
-}
-
-if (%(pressed)s) {
-    getLocation();
-}
-</script>
-""" % {"pressed": str(location_button).lower()}
-
-st.components.v1.html(location_html, height=100)
-
-# Display the location data
-lat = st.experimental_get_query_params().get("lat", [None])[0]
-lon = st.experimental_get_query_params().get("lon", [None])[0]
-
-if lat and lon:
-    st.write(f"Your location: Latitude {lat}, Longitude {lon}")
+if __name__ == "__main__":
+    main()
