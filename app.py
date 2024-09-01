@@ -2,7 +2,8 @@ import streamlit as st
 import folium
 from streamlit_folium import folium_static
 from geopy.geocoders import Nominatim
-from openrouteservice import Client, convert
+from openrouteservice import Client
+import polyline
 
 def get_location_coordinates(location_name):
     geolocator = Nominatim(user_agent="my_streamlit_map_application")
@@ -17,7 +18,7 @@ def get_location_coordinates(location_name):
         return None
 
 def create_map_with_route(start_lat, start_lon, end_lat, end_lon, api_key):
-    client = Client(key="5b3ce3597851110001cf624806ddd2f487fd40d49a44a2a0e5099273")
+    client = Client(key=api_key)
     
     # Get the route
     try:
@@ -38,10 +39,12 @@ def create_map_with_route(start_lat, start_lon, end_lat, end_lon, api_key):
     folium.Marker([end_lat, end_lon], popup="End", icon=folium.Icon(color='red')).add_to(m)
     
     # Add the route to the map
-    folium.PolyLine(
-        locations=convert.decode_polyline(route['features'][0]['geometry']['coordinates']),
-        color='blue'
-    ).add_to(m)
+    try:
+        route_coordinates = route['features'][0]['geometry']['coordinates']
+        decoded_coordinates = polyline.decode(route_coordinates)
+        folium.PolyLine(locations=decoded_coordinates, color='blue').add_to(m)
+    except Exception as e:
+        st.error(f"Error decoding polyline: {str(e)}")
     
     return m
 
