@@ -279,29 +279,28 @@ def main():
 
             start_location_name = location
             end_location_name = hospital_name + " in " + city
-            
-            if st.button("Show Route"):
-                if start_location_name and end_location_name:
-                    start_coordinates = get_location_coordinates(start_location_name)
-                    end_coordinates = get_location_coordinates(end_location_name)
+
+            if start_location_name and end_location_name:
+                start_coordinates = get_location_coordinates(start_location_name)
+                end_coordinates = get_location_coordinates(end_location_name)
+                
+                if start_coordinates and end_coordinates:
+                    start_lat, start_lon = start_coordinates
+                    end_lat, end_lon = end_coordinates
                     
-                    if start_coordinates and end_coordinates:
-                        start_lat, start_lon = start_coordinates
-                        end_lat, end_lon = end_coordinates
-                        
-                        st.success(f"Start Coordinates: {start_lat}, {start_lon}")
-                        st.success(f"End Coordinates: {end_lat}, {end_lon}")
-                        
-                        map = create_map_with_route(start_lat, start_lon, end_lat, end_lon)
-                        if map:
-                            folium_static(map)
-                    else:
-                        st.warning("One or both locations not found. Please try different locations.")
+                    st.success(f"Start Coordinates: {start_lat}, {start_lon}")
+                    st.success(f"End Coordinates: {end_lat}, {end_lon}")
+                    
+                    map = create_map_with_route(start_lat, start_lon, end_lat, end_lon)
+                    if map:
+                        folium_static(map)
                 else:
-                    st.warning("Please enter both start and end locations.")
+                    st.warning("One or both locations not found. Please try different locations.")
+            else:
+                st.warning("Please enter both start and end locations.")
 
 
-        
+    
 
 
 
