@@ -1,6 +1,7 @@
 import streamlit as st
 import time
 from geopy.geocoders import Nominatim
+import requests
 
 # Title for the app
 st.title("User's Geolocation")
@@ -11,10 +12,27 @@ def get_location_from_coordinates(lat, lon):
     try:
         location_data = geolocator.reverse(f"{lat}, {lon}", language="en")
         if location_data:
+            st.write("Raw location data:", location_data.raw)
             return location_data.raw['display_name']
         else:
             return "Location not found"
     except Exception as e:
+        st.error(f"Nominatim Error: {str(e)}")
+        return f"Error: {str(e)}"
+
+# Alternative function using OpenStreetMap API directly
+def get_location_from_osm(lat, lon):
+    url = f"https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat={lat}&lon={lon}"
+    try:
+        response = requests.get(url)
+        data = response.json()
+        st.write("OSM API response:", data)
+        if 'display_name' in data:
+            return data['display_name']
+        else:
+            return "Address not found in OSM response"
+    except Exception as e:
+        st.error(f"OSM API Error: {str(e)}")
         return f"Error: {str(e)}"
 
 # Step 1: Ask the user to enable location services
@@ -73,8 +91,10 @@ def get_address():
     lat = st.experimental_get_query_params().get("lat", [None])[0]
     lon = st.experimental_get_query_params().get("lon", [None])[0]
     if lat and lon:
-        address = get_location_from_coordinates(float(lat), float(lon))
-        return address
+        st.write(f"Received coordinates: Lat {lat}, Lon {lon}")
+        address_nominatim = get_location_from_coordinates(float(lat), float(lon))
+        address_osm = get_location_from_osm(float(lat), float(lon))
+        return f"Nominatim: {address_nominatim}\nOSM API: {address_osm}"
     return "Coordinates not provided"
 
 # Use Streamlit's server-side code to handle the request
