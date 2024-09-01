@@ -21,23 +21,30 @@ get_location_script = """
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         document.getElementById("location").innerHTML = `Latitude: ${lat}, Longitude: ${lon}`;
-        document.getElementById("lat").value = lat;
-        document.getElementById("lon").value = lon;
+        window.parent.postMessage({ lat: lat, lon: lon }, "*");
     }
     </script>
     <button onclick="getLocation()">Get Location</button>
     <p id="location"></p>
-    <input type="hidden" id="lat" />
-    <input type="hidden" id="lon" />
 """
 
 # Display the HTML/JS code in the Streamlit app
-result = st.components.v1.html(get_location_script, height=200)
+st.components.v1.html(get_location_script, height=200)
 
-# Step 3: Get the location from the hidden input fields
-lat = result[0].script_result.getElementById("lat").value
-lon = result[0].script_result.getElementById("lon").value
+# Step 3: Get the location from the JavaScript post message
+if "lat" not in st.session_state:
+    st.session_state.lat = None
+    st.session_state.lon = None
 
-# Display the latitude and longitude
-st.write(f"**Latitudesss:** {lat}")
-st.write(f"**Longitude:** {lon}")
+if st.session_state.lat is None:
+    st.write("Waiting for location...")
+else:
+    st.write(f"**Latitude:** {st.session_state.lat}")
+    st.write(f"**Longitude:** {st.session_state.lon}")
+
+# Handle the JavaScript post message
+if "message" in st.experimental_get_query_params():
+    lat = st.experimental_get_query_params()["message"][0]["lat"]
+    lon = st.experimental_get_query_params()["message"][0]["lon"]
+    st.session_state.lat = lat
+    st.session_state.lon = lon
