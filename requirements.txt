@@ -3,3 +3,7 @@ folium
 geopy
 streamlit-folium
 openrouteservice
+qdrant_client 
+sentence-transformers
+pandas
+requests
