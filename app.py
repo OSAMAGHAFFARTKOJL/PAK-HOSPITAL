@@ -13,6 +13,62 @@ import polyline
 
 
 
+from groq import Groq
+
+# Initialize the Groq client with your API key
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+
+# Function to use the Groq API to generate a response
+def generate_response( user_query):
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {"role": "system", "content": "You are a helpful  First Aid assistant. Give Answer Releated to the health or medical only"},
+            {"role": "user", "content": user_query},
+        ],
+        model="llama3-8b-8192",
+        temperature=0.5,
+        max_tokens=1024,
+        top_p=1,
+        stop=None,
+        stream=False,
+    )
+
+    return chat_completion.choices[0].message.content
+
+# Function to display the chatbot interface
+def chat_interface():
+    st.title("First Aid Chatbot")
+
+    if "history" not in st.session_state:
+        st.session_state.history = []
+
+
+    # User input section
+    with st.form(key='user_input_form'):
+        user_input = st.text_input("You:", key="input")
+        submit_button = st.form_submit_button(label="Send")
+
+    # Display chat history
+    for message in st.session_state.history:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    # If the user sends a message
+    if submit_button and user_input:
+        # Add user input to the chat history
+        st.session_state.history.append({"role": "user", "content": user_input})
+        
+        # Generate model response using Groq API
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                response = generate_response(user_input)
+                st.markdown(response)
+                st.warning("In the case of emergency contact with doctor.Generated responce may be invalid so validate it first.")
+
+        # Add model response to the chat history
+        st.session_state.history.append({"role": "assistant", "content": response})
+
+
 
 
 
@@ -117,6 +173,11 @@ def validate_login(email, password):
 # Create tabs for sign-up and login
 def main():
     if st.session_state.get("logged_in", False):
+        
+     tabs = ["Dashboard", "First Aid Chatbot"]
+     tab = st.tabs(tabs)
+     with tab[0]: 
+        
         st.title("Welcome to the Dashboard!")
 
         # Create two columns
@@ -308,7 +369,8 @@ def main():
 
 
 
-
+     with tab[1]:  # First Aid Chatbot tab
+            chat_interface()
     else:
         tabs = [ "Login","Sign Up"]
         tab = st.tabs(tabs)
