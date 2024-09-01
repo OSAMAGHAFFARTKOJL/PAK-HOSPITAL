@@ -38,7 +38,7 @@ def get_location_from_osm(lat, lon):
 # Step 1: Ask the user to enable location services
 st.write("Please enable location services in your browser.")
 
-# Step 2: HTML and JavaScript to get the user's location
+# JavaScript to get the user's location and send it to Streamlit
 get_location_script = """
 <script>
 function getLocation() {
@@ -53,12 +53,12 @@ function showPosition(position) {
     const lat = position.coords.latitude;
     const lon = position.coords.longitude;
     document.getElementById("location").innerHTML = `Latitude: ${lat}, Longitude: ${lon}`;
-    // Send the coordinates to Streamlit
-    fetch(`/get_address?lat=${lat}&lon=${lon}`)
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById("address").innerHTML = `Address: ${data}`;
-        });
+    
+    // Update the hidden input field
+    document.getElementById("lat").value = lat;
+    document.getElementById("lon").value = lon;
+    document.getElementById("lat").dispatchEvent(new Event('input', { bubbles: true }));
+    document.getElementById("lon").dispatchEvent(new Event('input', { bubbles: true }));
 }
 
 function showError(error) {
@@ -80,27 +80,30 @@ function showError(error) {
 </script>
 <button onclick="getLocation()">Get Location</button>
 <p id="location"></p>
-<p id="address"></p>
+<input type="hidden" id="lat" />
+<input type="hidden" id="lon" />
 """
 
 # Display the HTML/JS code in the Streamlit app
 st.components.v1.html(get_location_script, height=200)
 
-# Step 3: Handle the request to get the address
-def get_address():
-    lat = st.experimental_get_query_params().get("lat", [None])[0]
-    lon = st.experimental_get_query_params().get("lon", [None])[0]
-    if lat and lon:
-        st.write(f"Received coordinates: Lat {lat}, Lon {lon}")
-        address_nominatim = get_location_from_coordinates(float(lat), float(lon))
-        address_osm = get_location_from_osm(float(lat), float(lon))
-        return f"Nominatim: {address_nominatim}\nOSM API: {address_osm}"
-    return "Coordinates not provided"
+# Retrieve the coordinates from the hidden input fields
+lat = st.text_input("Latitude", key="lat")
+lon = st.text_input("Longitude", key="lon")
 
-# Use Streamlit's server-side code to handle the request
-if 'lat' in st.experimental_get_query_params() and 'lon' in st.experimental_get_query_params():
-    address = get_address()
-    st.write(f"Address: {address}")
+# Process the coordinates if available
+if lat and lon:
+    lat = float(lat)
+    lon = float(lon)
+    st.write(f"**Latitude:** {lat}")
+    st.write(f"**Longitude:** {lon}")
+    
+    address_nominatim = get_location_from_coordinates(lat, lon)
+    address_osm = get_location_from_osm(lat, lon)
+    st.write(f"**Address (Nominatim):** {address_nominatim}")
+    st.write(f"**Address (OSM API):** {address_osm}")
+else:
+    st.write("Waiting for location...")
 
 # Add a delay before making the next request
 time.sleep(1)
