@@ -1,22 +1,30 @@
 import streamlit as st
-from streamlit_js_eval import streamlit_js_eval, JsCode
 
 # Title for the app
 st.title("Get User's Geolocation")
 
-# JavaScript code to get user's location
-js_code = JsCode("""
-    navigator.geolocation.getCurrentPosition(
-        (position) => {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-            streamlit.setComponentValue(`${latitude},${longitude}`);
-        }
-    );
-""")
+# HTML and JavaScript code to get user's geolocation
+location_html = """
+    <script>
+    function getLocation() {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    }
+    function showPosition(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        document.getElementById("location_input").value = lat + "," + lon;
+        document.getElementById("location_input").dispatchEvent(new Event("input"));
+    }
+    getLocation();
+    </script>
+    <input type="hidden" id="location_input" />
+"""
 
-# Run the JavaScript and get the result
-location = streamlit_js_eval(js_code, key="get_location")
+# Display the HTML/JS code in the Streamlit app
+st.components.v1.html(location_html)
+
+# Retrieve the location from the hidden input field
+location = st.text_input("Location", key="location_input")
 
 # Display the location if it was retrieved
 if location:
@@ -25,4 +33,3 @@ if location:
     st.write(f"**Longitude:** {lon.strip()}")
 else:
     st.write("Waiting for location...")
-
