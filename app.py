@@ -1,41 +1,27 @@
 import streamlit as st
+import requests
+
+# Function to get user's location based on IP
+def get_user_location():
+    response = requests.get('http://ip-api.com/json')
+    data = response.json()
+    return data['lat'], data['lon'], data['city'], data['region'], data['country']
 
 # Streamlit app title
-st.title("Get Your Current Location")
+st.title("Find Your Location")
 
+# Button to fetch the location
+if st.button("Get Location"):
+    location = get_user_location()
+    
+    if location:
+        st.success("Location retrieved successfully!")
+        st.write(f"**Latitude:** {location[0]}")
+        st.write(f"**Longitude:** {location[1]}")
+        st.write(f"**City:** {location[2]}")
+        st.write(f"**Region:** {location[3]}")
+        st.write(f"**Country:** {location[4]}")
+    else:
+        st.error("Unable to retrieve location.")
 
-st.write(
-    """
-    <script>
-    navigator.geolocation.getCurrentPosition(
-        (position) => {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-            document.getElementById('latitude').value = latitude;
-            document.getElementById('longitude').value = longitude;
-            document.getElementById('location-form').submit();
-        },
-        (error) => {
-            console.error('Error Code = ' + error.code + ' - ' + error.message);
-            document.getElementById('error-msg').textContent = 'Error: Unable to get location. Please allow location access in your browser.';
-        }
-    );
-    </script>
-    <form id="location-form" method="post">
-        <input type="hidden" id="latitude" name="latitude">
-        <input type="hidden" id="longitude" name="longitude">
-    </form>
-    <p id="error-msg" style="color: red;"></p>
-    """,
-    unsafe_allow_html=True,
-)
-
-
-latitude = float(st.experimental_get_query_params()["latitude"][0])
-longitude = float(st.experimental_get_query_params()["longitude"][0])
-
-# Display the retrieved location
-st.success("Location retrieved successfully!")
-st.write(f"**Latitude:** {latitude}")
-st.write(f"**Longitude:** {longitude}")
 
