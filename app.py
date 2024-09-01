@@ -36,13 +36,12 @@ st.components.v1.html(get_location_script)
 location = st.text_input("Location", key="location_input")
 
 # Step 4: Display the location if it was retrieved
-if location:
-    lat, lon = location.split(",")
-    geolocator = Nominatim(user_agent="geoapiExercises")
-    location_data = geolocator.reverse(f"{lat}, {lon}")
-    address = location_data.address
-    st.write(f"**Latitude:** {lat.strip()}")
-    st.write(f"**Longitude:** {lon.strip()}")
-    st.write(f"**Location:** {address}")
-else:
-    st.write("Waiting for location...")
+
+lat, lon = location.split(",")
+geolocator = Nominatim(user_agent="geoapiExercises")
+location_data = geolocator.reverse(f"{lat}, {lon}")
+address = location_data.address
+st.write(f"**Latitude:** {lat.strip()}")
+st.write(f"**Longitude:** {lon.strip()}")
+st.write(f"**Location:** {address}")
+
