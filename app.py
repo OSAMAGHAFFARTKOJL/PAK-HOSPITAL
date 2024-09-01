@@ -175,6 +175,7 @@ def main():
                 query_text = hospital_name  # Replace with your query text
 
                 search_results = search_hospitals_by_city(city, query_text)
+                search_results = search_results[0]
                 st.write(f"Hospital Name: {search_results['HOSPITAL NAME']}")
                 st.write(f"City: {search_results['CITY']}")
                 st.write(f"Adress: {search_results['ADDRESS']}")
@@ -215,6 +216,7 @@ def main():
                 query_text = hospital_name # Replace with your query text
 
                 search_results = search_hospitals_by_city(city, query_text)
+                search_results = search_results[0]
                 st.write(f"Hospital Name: {search_results['Hospital']}")
                 st.write(f"State: {search_results['State']}")
                 st.write(f"City: {search_results['City']}")
@@ -262,6 +264,7 @@ def main():
                 query_text = hospital_name # Replace with your query text
 
                 search_results = search_hospitals_by_city(city, query_text)
+                search_results = search_results[0]
                 st.write(f"** HOSPITAL NAME:** {search_results['NAME']}")
                 st.write(f"**ADDRESS:** {search_results['ADDRESS']}")
                 st.write(f"**CITY:** {search_results['CITY']}")
