@@ -20,7 +20,7 @@ get_location_script = """
     function showPosition(position) {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
-        document.getElementById("location").innerHTML = Latitude: ${lat}, Longitude: ${lon};
+        document.getElementById("location").innerHTML = `Latitude: ${lat}, Longitude: ${lon}`;
     }
     </script>
     <button onclick="getLocation()">Get Location</button>
