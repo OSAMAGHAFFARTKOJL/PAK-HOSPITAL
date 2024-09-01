@@ -26,7 +26,7 @@ qdrant_client = QdrantClient(
 # Initialize your embedding model
 model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
 search_results = {}
-
+adress = ""
 # File to store user credentials
 USER_CSV = "users.csv"
 
@@ -179,6 +179,7 @@ def main():
                 st.write(f"Hospital Name: {search_results['HOSPITAL NAME']}")
                 st.write(f"City: {search_results['CITY']}")
                 st.write(f"Adress: {search_results['ADDRESS']}")
+                adress = search_results['ADDRESS']
                 st.write(f"Contact: {search_results['CONTACT']}")
 
             elif country == "India":
@@ -221,6 +222,7 @@ def main():
                 st.write(f"State: {search_results['State']}")
                 st.write(f"City: {search_results['City']}")
                 st.write(f"Adress: {search_results['LocalAddress']}")
+                adress = search_results['LocalAddress']
 
 
             else:
@@ -267,6 +269,7 @@ def main():
                 search_results = search_results[0]
                 st.write(f"** HOSPITAL NAME:** {search_results['NAME']}")
                 st.write(f"**ADDRESS:** {search_results['ADDRESS']}")
+                adress = search_results['ADDRESS']
                 st.write(f"**CITY:** {search_results['CITY']}")
                 st.write(f"**STATE:** {search_results['STATE']}")
                 st.write(f"**TELEPHONE:** {search_results['TELEPHONE']}")
@@ -278,7 +281,7 @@ def main():
                 st.write(f"**SOURCE:** {search_results['SOURCE']}")
 
             start_location_name = location
-            end_location_name = hospital_name
+            end_location_name = adress
 
             if start_location_name and end_location_name:
                 start_coordinates = get_location_coordinates(start_location_name)
