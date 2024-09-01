@@ -30,13 +30,12 @@ st.write(
     unsafe_allow_html=True,
 )
 
-# Handle the received data
-if "latitude" in st.experimental_get_query_params():
-    latitude = float(st.experimental_get_query_params()["latitude"][0])
-    longitude = float(st.experimental_get_query_params()["longitude"][0])
 
-    # Display the retrieved location
-    st.success("Location retrieved successfully!")
-    st.write(f"**Latitude:** {latitude}")
-    st.write(f"**Longitude:** {longitude}")
+latitude = float(st.experimental_get_query_params()["latitude"][0])
+longitude = float(st.experimental_get_query_params()["longitude"][0])
+
+# Display the retrieved location
+st.success("Location retrieved successfully!")
+st.write(f"**Latitude:** {latitude}")
+st.write(f"**Longitude:** {longitude}")
 
