@@ -1,5 +1,4 @@
 import streamlit as st
-from geopy.geocoders import Nominatim
 
 # Title for the app
 st.title("User's Geolocation")
@@ -21,27 +20,12 @@ get_location_script = """
     function showPosition(position) {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
-        document.getElementById("location_input").value = lat + "," + lon;
-        document.getElementById("location_input").dispatchEvent(new Event("input"));
+        document.getElementById("location").innerHTML = `Latitude: ${lat}, Longitude: ${lon}`;
     }
     </script>
     <button onclick="getLocation()">Get Location</button>
-    <input type="hidden" id="location_input" />
+    <p id="location"></p>
 """
 
 # Display the HTML/JS code in the Streamlit app
-st.components.v1.html(get_location_script)
-
-# Step 3: Retrieve the location from the hidden input field
-location = st.text_input("Location", key="location_input")
-
-# Step 4: Display the location if it was retrieved
-
-lat, lon = location.split(",")
-geolocator = Nominatim(user_agent="geoapiExercises")
-location_data = geolocator.reverse(f"{lat}, {lon}")
-address = location_data.address
-st.write(f"**Latitude:** {lat.strip()}")
-st.write(f"**Longitude:** {lon.strip()}")
-st.write(f"**Location:** {address}")
-
+st.components.v1.html(get_location_script, height=200)
