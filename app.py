@@ -4,9 +4,9 @@ import streamlit as st
 st.title("Get Your Current Location")
 
 # Add a button that triggers the JavaScript to get the geolocation
-location_button = st.button("Get Location")
 
-if location_button:
+
+if st.button("Get Location"):
     # Use Streamlit to run JavaScript and get the user's geolocation
     st.write(
         """
