@@ -1,6 +1,4 @@
 import streamlit as st
-import time
-from geopy.geocoders import Nominatim
 
 # Title for the app
 st.title("User's Geolocation")
@@ -8,7 +6,7 @@ st.title("User's Geolocation")
 # Step 1: Ask the user to enable location services
 st.write("Please enable location services in your browser.")
 
-# Step 2: HTML and JavaScript to get the user's location after they enable it
+# JavaScript to get the user's location and send it to Streamlit
 get_location_script = """
     <script>
     function getLocation() {
@@ -23,8 +21,26 @@ get_location_script = """
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         document.getElementById("location").innerHTML = `Latitude: ${lat}, Longitude: ${lon}`;
-        document.getElementById("location_input").value = `${lat}, ${lon}`;
+        
+        // Update Streamlit with location data
+        const inputField = document.getElementById("location_input");
+        inputField.value = `${lat},${lon}`;
+        inputField.dispatchEvent(new Event('input', { bubbles: true }));
+        
+        // Save the coordinates in session storage to retrieve it in Python
+        sessionStorage.setItem('lat', lat);
+        sessionStorage.setItem('lon', lon);
     }
+    
+    window.onload = function() {
+        const lat = sessionStorage.getItem('lat');
+        const lon = sessionStorage.getItem('lon');
+        if (lat && lon) {
+            document.getElementById("location").innerHTML = `Latitude: ${lat}, Longitude: ${lon}`;
+            document.getElementById("location_input").value = `${lat},${lon}`;
+            document.getElementById("location_input").dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    };
     </script>
     <button onclick="getLocation()">Get Location</button>
     <p id="location"></p>
@@ -34,25 +50,18 @@ get_location_script = """
 # Display the HTML/JS code in the Streamlit app
 st.components.v1.html(get_location_script, height=200)
 
-# Step 3: Get the location from the hidden input field
-location_input = st.text_input("Location", key="location_input")
-
-# Step 4: Reverse geocode the location
-if location_input:
-    lat, lon = location_input.split(", ")
-    def get_location_from_coordinates(lat, lon):
-        # Create a geolocator object
-        geolocator = Nominatim(user_agent="MyGeoApp/1.0")
-        
-        # Perform reverse geocoding
-        location_data = geolocator.reverse(f"{lat}, {lon}")
-        
-        if location_data:
-            return location_data.address
-        else:
-            return "Location not found"
-
-    address = get_location_from_coordinates(lat, lon)
-    st.write(f"**Address:** {address}")
+# Retrieve the location from the hidden input field
+if 'lat_lon' in st.session_state:
+    lat, lon = st.session_state.lat_lon.split(",")
+    st.write(f"**Latitude:** {lat.strip()}")
+    st.write(f"**Longitude:** {lon.strip()}")
 else:
     st.write("Waiting for location...")
+
+# Save the location to session state
+def update_location(location):
+    st.session_state.lat_lon = location
+
+# Call the function to update location
+if st.session_state.get('lat_lon'):
+    update_location(st.session_state.lat_lon)
